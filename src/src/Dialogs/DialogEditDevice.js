@@ -357,9 +357,18 @@ class DialogEditDevice extends React.Component {
         this.fx = {};
         const states = {};
 
-        this.props.channelInfo.states.forEach(state => {
+        for (const state of this.props.channelInfo.states) {
             if (state.id) {
                 const obj = this.props.objects[state.id];
+                if (this.props.channelInfo.type === 'info' && state.name === 'ACTUAL') {
+                    //for info device replace ACTUAL with name of state - ACTUAL makes not much sense here.
+                    if (obj && obj.common && obj.common.name) {
+                        state.name = obj.common.name;
+                    } else if (obj._id) {
+                        state.name = obj._id.split('.').pop();
+                    }
+                }
+
                 if (obj && obj.common && obj.common.alias) {
                     ids[state.name] = obj.common.alias.id || '';
                     this.fx[state.name] = {
@@ -391,7 +400,7 @@ class DialogEditDevice extends React.Component {
             } else {
                 this.fx[state.name] = { read: '', write: '' };
             }
-        });
+        }
 
         const { addedStates } = this.updateFx(this.getAddedChannelStates(), ids, states);
 
